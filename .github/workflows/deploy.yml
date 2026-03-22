@@ -37,11 +37,11 @@ jobs:
 
       # 7. Tag image
       - name: Tag image
-        run: docker tag payment-service ${{ secrets.DOCKER_USERNAME }}/payment-service
+        run: docker tag payment-service ${{ secrets.DOCKER_USERNAME }}/payment-service-ctse
 
       # 8. Push image
       - name: Push image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/payment-service
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/payment-service-ctse
 
       # 9. Deploy to server
       - name: Deploy via SSH
