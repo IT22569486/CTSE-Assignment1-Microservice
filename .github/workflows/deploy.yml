@@ -1,0 +1,57 @@
+name: Deploy Payment Service
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Get code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Run tests
+      - name: Run tests
+        run: npm test
+
+      # 5. Build Docker image
+      - name: Build Docker image
+        run: docker build -t payment-service .
+
+      # 6. Login to Docker Hub
+      - name: Login Docker
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      # 7. Tag image
+      - name: Tag image
+        run: docker tag payment-service ${{ secrets.DOCKER_USERNAME }}/payment-service
+
+      # 8. Push image
+      - name: Push image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/payment-service
+
+      # 9. Deploy to server
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/payment-service
+            docker stop payment-service || true
+            docker rm payment-service || true
+            docker run -d -p 3003:3000 --name payment-service ${{ secrets.DOCKER_USERNAME }}/payment-service
