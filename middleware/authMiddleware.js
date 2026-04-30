@@ -1,18 +1,31 @@
 const jwt = require('jsonwebtoken');
 
-const protect = (req, res, next) => {
-  let token;
+const JWT_SECRET = process.env.JWT_SECRET || process.env.AUTH_JWT_SECRET || process.env.ACCESS_TOKEN_SECRET;
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
+const getTokenFromRequest = (req) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.split(' ')[1];
   }
+
+  return req.headers['x-auth-token'] || req.headers.token || null;
+};
+
+const protect = (req, res, next) => {
+  const token = getTokenFromRequest(req);
 
   if (!token) {
     return res.status(401).json({ message: 'Not authorized, no token provided' });
   }
 
+  if (!JWT_SECRET) {
+    console.error('JWT secret not configured on this service');
+    return res.status(500).json({ message: 'Authentication secret is not configured' });
+  }
+
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.user = {
       _id: decoded.id,
       role: decoded.role || 'customer',
