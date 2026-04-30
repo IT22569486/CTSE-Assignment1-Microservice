@@ -31,7 +31,7 @@ Default port: `5004`
 Set these before deploying the service:
 
 - `PORT` - server port
-- `MONGODB_URI` - MongoDB connection string
+- `MONGO_URI` - MongoDB connection string (or use `MONGODB_URI`)
 - `JWT_SECRET` - must match the secret used by the service that issues your user tokens
 - `CLIENT_ORIGIN` - frontend origin allowed by CORS
 - `INTERNAL_API_KEY` - shared key for service-to-service calls
