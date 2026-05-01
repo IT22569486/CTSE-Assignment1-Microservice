@@ -30,10 +30,10 @@ jobs:
       - name: Check package.json
         run: |
           if [ -f "package.json" ]; then
-            echo "✅ package.json found"
+            echo "package.json found"
             cat package.json | grep name || true
           else
-            echo "❌ package.json NOT found!"
+            echo "package.json NOT found!"
             exit 1
           fi
       
@@ -85,4 +85,4 @@ jobs:
             docker stop payment-service || true
             docker rm payment-service || true
             docker run -d -p 80:5004 -p 5004:5004 --name payment-service --restart always ${{ secrets.DOCKER_USERNAME }}/payment-service-ctse:latest
-            echo "✅ Deployment complete!"
+            echo "Deployment complete!"
